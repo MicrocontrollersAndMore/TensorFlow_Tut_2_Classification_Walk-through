@@ -40,8 +40,10 @@ from tensorflow.python.platform import gfile
 from tensorflow.python.util import compat
 
 # module level variables ##############################################################################################
-# this is assigned the results of parsing command line params, see if __name__ == '__main__': at the end of this file
-# FLAGS = None
+MIN_NUM_IMAGES_REQUIRED_FOR_TRAINING = 10
+MIN_NUM_IMAGES_SUGGESTED_FOR_TRAINING = 100
+
+MAX_NUM_IMAGES_PER_CLASS = 2 ** 27 - 1  # ~134M
 
 # path to folders of labeled images
 TRAINING_IMAGES_DIR = os.getcwd() + '/training_images'
@@ -133,8 +135,6 @@ RANDOM_BRIGHTNESS = 0
 # either '224', '192', '160', or '128', with smaller sizes running faster.
 # See https://research.googleblog.com/2017/06/mobilenets-open-source-models-for.html for more information on Mobilenet.
 ARCHITECTURE = 'inception_v3'
-
-MAX_NUM_IMAGES_PER_CLASS = 2 ** 27 - 1  # ~134M
 
 #######################################################################################################################
 def main():
@@ -310,6 +310,35 @@ def checkIfNecessaryPathsAndFilesExist():
         print('Did you set up the training images?')
         print('')
         return False
+    # end if
+
+    # count how many images are in the training directory
+    numImagesInTrainingDir = 0
+    for fileName in os.listdir(TRAINING_IMAGES_DIR):
+        if fileName.endswith(".jpg"):
+            numImagesInTrainingDir += 1
+        # end if
+    # end if
+
+    # show an error and return false if there are no images in the training directory
+    if len(numImagesInTrainingDir) <= 0:
+        print("ERROR: there don't seem to be any .jpg images in " + TRAINING_IMAGES_DIR)
+        print("Did you set up the training images?")
+        return False
+    # end if
+
+    # show an error and return false if there are not at least 10 images in TRAINING_IMAGES_DIR
+    if len(numImagesInTrainingDir) < MIN_NUM_IMAGES_REQUIRED_FOR_TRAINING:
+        print("ERROR: there are not at least " + str(MIN_NUM_IMAGES_REQUIRED_FOR_TRAINING) + " .jpg images in " + TRAINING_IMAGES_DIR)
+        print("Did you set up the training images?")
+        return False
+    # end if
+
+    # show a warning if there are not at least 100 images in TEST_IMAGES_DIR
+    if len(numImagesInTrainingDir) < MIN_NUM_IMAGES_SUGGESTED_FOR_TRAINING:
+        print("WARNING: there are not at least " + str(MIN_NUM_IMAGES_SUGGESTED_FOR_TRAINING) + " .jpg images in " + TRAINING_IMAGES_DIR)
+        print("At least " + str(MIN_NUM_IMAGES_SUGGESTED_FOR_TRAINING) + " .jpg images are recommended for bare minimum acceptable results")
+        # note we do not return false here b/c this is a warning, not an error
     # end if
 
     return True
