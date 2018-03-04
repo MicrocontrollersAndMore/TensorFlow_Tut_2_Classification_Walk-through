@@ -342,7 +342,7 @@ def checkIfNecessaryPathsAndFilesExist():
     # if no training sub-directories were found, show an error message and return false
     if len(trainingSubDirs) == 0:
         print("ERROR: there don't seem to be any training image sub-directories in " + TRAINING_IMAGES_DIR)
-        print("did you make a separare image sub-directory for each classification type?")
+        print("Did you make a separare image sub-directory for each classification type?")
         return False
     # end if
 
@@ -360,7 +360,7 @@ def checkIfNecessaryPathsAndFilesExist():
     for trainingSubDir in trainingSubDirs:
         if trainingSubDir.numImages < MIN_NUM_IMAGES_REQUIRED_FOR_TRAINING:
             print("ERROR: there are less than the required " + str(MIN_NUM_IMAGES_REQUIRED_FOR_TRAINING) + " images in " + trainingSubDir.loc)
-            print("did you populate each training sub-directory with images?")
+            print("Did you populate each training sub-directory with images?")
             return False
         # end if
     # end for
