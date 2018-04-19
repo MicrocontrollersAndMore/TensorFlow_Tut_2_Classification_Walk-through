@@ -76,22 +76,11 @@ def main():
             # get the final tensor from the graph
             finalTensor = sess.graph.get_tensor_by_name('final_result:0')
 
-            # ToDo: find a way to convert from a NumPy array / OpenCV image to a TensorFlow image
-            # instead of opening the file twice, these attempts don't work
-            # attempt 1:
-            # openCVImageAsArray = np.asarray(openCVImage, np.float32)
-            # tfImage = tf.convert_to_tensor(openCVImageAsArray, np.float32)
-            # attempt 2:
-            # tfImage = np.array(openCVImage)[:, :, 0:3]
-            # I have a Stack Overflow post about this here:
-            # https://stackoverflow.com/questions/48727264/how-to-convert-numpy-array-image-to-tensorflow-image
-            # If anybody could work out what I'm missing here and respond that would be great
-
-            # open the image in TensorFlow
-            tfImage = tf.gfile.FastGFile(imageFileWithPath, 'rb').read()
-
+            # reference the openCV image as a numpy array to feed to the tf network
+            tfImage = np.array(openCVImage)[:, :, 0:3]
+            
             # run the network to get the predictions
-            predictions = sess.run(finalTensor, {'DecodeJpeg/contents:0': tfImage})
+            predictions = sess.run(finalTensor, {'DecodeJpeg:0': tfImage})
 
             # sort predictions from most confidence to least confidence
             sortedPredictions = predictions[0].argsort()[-len(predictions[0]):][::-1]
