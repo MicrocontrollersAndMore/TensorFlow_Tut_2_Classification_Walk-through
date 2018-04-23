@@ -593,41 +593,58 @@ def create_image_lists(image_dir, testing_percentage, validation_percentage):
         A dictionary containing an entry for each label subfolder, with images split
         into training, testing, and validation sets within each label.
     """
+
+    # if the image directory does not exist, log an error and bail
     if not gfile.Exists(image_dir):
         tf.logging.error("Image directory '" + image_dir + "' not found.")
         return None
     # end if
 
+    # create an empty dictionary to store the results
     result = {}
+
+    # get a list of the sub-directories of the image directory
     sub_dirs = [x[0] for x in gfile.Walk(image_dir)]
 
-    # The root directory comes first, so skip it.
+    # for each directory in the sub-directories list . . .
     is_root_dir = True
     for sub_dir in sub_dirs:
+        # if we're on the 1st (root) directory, mark our boolean for that as false for the next time around and go back to the top of the for loop
         if is_root_dir:
             is_root_dir = False
             continue
         # end if
-        extensions = ['jpg', 'jpeg', 'JPG', 'JPEG']
-        file_list = []
+
         dir_name = os.path.basename(sub_dir)
         if dir_name == image_dir:
             continue
         # end if
+
+        # ToDo: This section should be refactored.  The right way to do this would be to get a list of the files that are
+        # ToDo: there then append (extend) those, not to get the name except the extension, then append an extension,
+        # ToDo: this (current) way is error prone of the original file has an upper case or mixed case extension
+
+        extensions = ['jpg', 'jpeg']
+        file_list = []
         tf.logging.info("Looking for images in '" + dir_name + "'")
         for extension in extensions:
             file_glob = os.path.join(image_dir, dir_name, '*.' + extension)
             file_list.extend(gfile.Glob(file_glob))
         # end for
+
+        # if the file list is empty at this point, log a warning and bail
         if not file_list:
             tf.logging.warning('No files found')
             continue
         # end if
+
+        # if the length of the file list is less than 20 or more than the max number, log an applicable warning (do not return, however)
         if len(file_list) < 20:
             tf.logging.warning('WARNING: Folder has less than 20 images, which may cause issues.')
         elif len(file_list) > MAX_NUM_IMAGES_PER_CLASS:
             tf.logging.warning('WARNING: Folder {} has more than {} images. Some images will never be selected.'.format(dir_name, MAX_NUM_IMAGES_PER_CLASS))
         # end if
+
         label_name = re.sub(r'[^a-z0-9]+', ' ', dir_name.lower())
         training_images = []
         testing_images = []
