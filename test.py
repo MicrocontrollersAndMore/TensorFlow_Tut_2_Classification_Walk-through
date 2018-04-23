@@ -76,7 +76,7 @@ def main():
             # get the final tensor from the graph
             finalTensor = sess.graph.get_tensor_by_name('final_result:0')
 
-            # reference the openCV image as a numpy array to feed to the tf network
+            # convert the OpenCV image (numpy array) to a TensorFlow image
             tfImage = np.array(openCVImage)[:, :, 0:3]
             
             # run the network to get the predictions
